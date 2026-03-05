@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miro GTM Brain — Business Architecture</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-light: #eff6ff;
+    --purple: #7c3aed;
+    --purple-light: #f5f3ff;
+    --green: #059669;
+    --green-light: #ecfdf5;
+    --orange: #ea580c;
+    --orange-light: #fff7ed;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--gray-800);
+    line-height: 1.6;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    background: #fff;
+  }
+
+  header { text-align: center; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid var(--gray-200); }
+  header h1 { font-size: 2.2rem; color: var(--gray-900); margin-bottom: 8px; }
+  header .subtitle { font-size: 1.15rem; color: var(--gray-600); margin-bottom: 16px; }
+  header .meta { font-size: 0.85rem; color: var(--gray-600); }
+  header .meta span { margin: 0 12px; }
+
+  h2 { font-size: 1.6rem; color: var(--gray-900); margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--blue); display: inline-block; }
+  h3 { font-size: 1.15rem; color: var(--gray-800); margin: 24px 0 12px; }
+
+  p { margin-bottom: 16px; color: var(--gray-600); }
+  strong { color: var(--gray-800); }
+
+  .callout {
+    background: var(--blue-light);
+    border-left: 4px solid var(--blue);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 24px 0;
+    font-size: 1.05rem;
+    color: var(--gray-800);
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 0.95rem; }
+  th { background: var(--gray-900); color: #fff; padding: 12px 16px; text-align: left; font-weight: 600; }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--gray-200); color: var(--gray-600); }
+  tr:nth-child(even) td { background: var(--gray-50); }
+  td strong { color: var(--gray-800); }
+
+  .concentric-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 32px 0 40px;
+  }
+
+  .ring {
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .ring-outer {
+    width: 820px;
+    height: 520px;
+    background: var(--green-light);
+    border: 3px solid var(--green);
+    padding: 24px 60px;
+  }
+
+  .ring-middle {
+    width: 660px;
+    height: 360px;
+    background: var(--purple-light);
+    border: 3px solid var(--purple);
+    padding: 20px 50px;
+  }
+
+  .ring-inner {
+    width: 480px;
+    height: 200px;
+    background: var(--blue-light);
+    border: 3px solid var(--blue);
+    padding: 20px 40px;
+  }
+
+  .ring-label {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .ring-label-green { color: var(--green); }
+  .ring-label-purple { color: var(--purple); }
+  .ring-label-blue { color: var(--blue); }
+
+  .ring-desc {
+    font-size: 0.82rem;
+    color: var(--gray-600);
+    margin-bottom: 10px;
+    max-width: 95%;
+  }
+
+  .pill-row-center { justify-content: center; }
+
+  @media (max-width: 860px) {
+    .ring-outer { width: 95vw; height: auto; border-radius: 24px; padding: 24px 16px; }
+    .ring-middle { width: 100%; height: auto; border-radius: 20px; margin-top: 12px; padding: 20px 14px; }
+    .ring-inner { width: 100%; height: auto; border-radius: 16px; margin-top: 12px; padding: 16px 12px; }
+  }
+
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .pill-green { background: var(--green); }
+  .pill-purple { background: var(--purple); }
+  .pill-blue { background: var(--blue); }
+
+  .dp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .dp-card {
+    background: #fff;
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .dp-card h4 { color: var(--blue); margin-bottom: 8px; font-size: 1rem; }
+  .dp-card .question { font-style: italic; color: var(--gray-600); font-size: 0.9rem; margin-bottom: 8px; }
+  .dp-card .example { background: var(--blue-light); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; color: var(--gray-800); }
+
+  .cortex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .cortex-card {
+    background: var(--purple-light);
+    border: 1px solid var(--purple);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .cortex-card h4 { color: var(--purple); margin-bottom: 6px; }
+  .cortex-card .use { font-size: 0.9rem; color: var(--gray-600); margin-bottom: 6px; }
+  .cortex-card .value { font-size: 0.85rem; color: var(--gray-800); font-weight: 500; }
+
+  .workato-flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0;
+    font-size: 0.9rem;
+  }
+  .wf-box {
+    background: var(--orange-light);
+    border: 1px solid var(--orange);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+  .wf-arrow { text-align: center; font-size: 1.4rem; color: var(--orange); }
+
+  .timeline { margin: 24px 0; }
+  .tl-step {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 0;
+    position: relative;
+  }
+  .tl-time {
+    flex: 0 0 80px;
+    font-weight: 700;
+    color: var(--blue);
+    padding-top: 16px;
+    text-align: right;
+  }
+  .tl-line {
+    flex: 0 0 3px;
+    background: var(--blue);
+    position: relative;
+  }
+  .tl-line::before {
+    content: '';
+    width: 14px;
+    height: 14px;
+    background: var(--blue);
+    border-radius: 50%;
+    position: absolute;
+    top: 20px;
+    left: -5.5px;
+  }
+  .tl-content {
+    flex: 1;
+    padding: 12px 20px;
+    margin: 8px 0;
+    background: var(--blue-light);
+    border-radius: 8px;
+    border-left: 3px solid var(--blue);
+  }
+  .tl-content h4 { color: var(--blue); margin-bottom: 4px; }
+  .tl-content p { margin-bottom: 4px; font-size: 0.9rem; }
+  .tl-content.purple { background: var(--purple-light); border-color: var(--purple); }
+  .tl-content.purple h4 { color: var(--purple); }
+  .tl-content.green { background: var(--green-light); border-color: var(--green); }
+  .tl-content.green h4 { color: var(--green); }
+  .tl-content.orange { background: var(--orange-light); border-color: var(--orange); }
+  .tl-content.orange h4 { color: var(--orange); }
+
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .metric-card {
+    background: var(--green-light);
+    border: 1px solid var(--green);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .metric-card .target { font-size: 1.4rem; font-weight: 700; color: var(--green); }
+  .metric-card .label { font-size: 0.85rem; color: var(--gray-600); margin-top: 4px; }
+
+  .compare-table tr td:first-child { color: var(--gray-600); }
+  .compare-table tr td:last-child { color: var(--blue); font-weight: 500; }
+
+  .tech-table td:first-child { font-weight: 700; white-space: nowrap; }
+
+  .mermaid { margin: 24px 0; text-align: center; }
+
+  .ext-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .ext-card {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 20px;
+    border-top: 4px solid var(--blue);
+  }
+  .ext-card h4 { color: var(--blue); margin-bottom: 6px; }
+  .ext-card .owner { font-size: 0.8rem; color: var(--gray-600); margin-top: 8px; font-weight: 600; }
+
+  .why-list { list-style: none; padding: 0; }
+  .why-list li {
+    padding: 8px 0 8px 28px;
+    position: relative;
+    color: var(--gray-600);
+  }
+  .why-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  @media (max-width: 700px) {
+    .dp-grid, .cortex-grid, .metric-grid, .ext-grid { grid-template-columns: 1fr; }
+    .workato-flow { grid-template-columns: 1fr; }
+    .wf-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Miro GTM Brain</h1>
+  <div class="subtitle">How AI-Powered Deal Intelligence Works for GTM</div>
+  <div class="meta">
+    <span>Version 1.0</span> · <span>Business Stakeholders</span> · <span>March 2026</span>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<h2>Goal</h2>
+
+<p>This document outlines the architecture for delivering <strong>next best action recommendations to Account Executives</strong> — combining CRM, call intelligence, product usage, and sales engagement data into a single AI-powered system that tells AEs what to do, why, and when.</p>
+
+<div class="callout">
+  The <strong>Deal CoPilot</strong> is the first implementation: a daily Slack briefing with the top 3 prioritized actions per AE, powered by data products as foundational building blocks which provide basic context, Snowflake Cortex as the intelligence layer, and delivered via Workato.
+</div>
+
+<!-- ============================================================ -->
+<h2>Architecture at a Glance</h2>
+
+<p>The system has three layers, each with a clear purpose:</p>
+
+<div class="concentric-wrapper">
+  <div class="ring ring-outer">
+    <div class="ring-label ring-label-green">Evaluation Layer</div>
+    <div class="ring-desc">Continuous quality measurement of agent outputs</div>
+    <div class="pill-row pill-row-center">
+      <span class="pill pill-green">Business Evals</span>
+      <span class="pill pill-green">Automated Scoring</span>
+      <span class="pill pill-green">Feedback Loops</span>
+    </div>
+    <div class="ring ring-middle">
+      <div class="ring-label ring-label-purple">Agent Intelligence · Snowflake Cortex</div>
+      <div class="ring-desc">Reasoning layer — applies rules, skills, and memory to generate recommendations</div>
+      <div class="pill-row pill-row-center">
+        <span class="pill pill-purple">Rules</span>
+        <span class="pill pill-purple">Skills</span>
+        <span class="pill pill-purple">Memory</span>
+        <span class="pill pill-purple">Corrections</span>
+      </div>
+      <div class="ring ring-inner">
+        <div class="ring-label ring-label-blue">Data Context Foundation</div>
+        <div class="ring-desc">Data product composed of 4 sub-data-products</div>
+        <div class="pill-row pill-row-center">
+          <span class="pill pill-blue">Conversations</span>
+          <span class="pill pill-blue">Organization</span>
+          <span class="pill pill-blue">Product Usage</span>
+          <span class="pill pill-blue">Engagement</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>How It All Connects</h2>
+
+<p>Source systems feed directly into <strong>data products in Snowflake</strong> — all data ingestion and transformation happens inside the data platform. <strong>Workato</strong> sits on the output side, delivering AI-generated recommendations to the right people and systems.</p>
+
+<div class="mermaid">
+flowchart TD
+    subgraph sources [" Source Systems "]
+        direction LR
+        G["🎙️ Gong"]
+        S["💼 Salesforce"]
+        P["📊 Product Analytics"]
+        O["📧 Outreach"]
+    end
+
+    subgraph snowflake [" Snowflake / dbt — Data Platform "]
+        direction TB
+        subgraph dp [" Data Products "]
+            direction LR
+            DP1["💬 Conversations"]
+            DP2["🏢 Organization"]
+            DP3["📈 Product Usage"]
+            DP4["🤝 Engagement"]
+        end
+        MART["🎯 Deal Data Product"]
+        CORTEX["🧠 Snowflake Cortex — AI Engine"]
+    end
+
+    WORKATO["⚡ Workato — Action & Delivery"]
+
+    SL["💬 Slack"]
+
+    G -- "calls" --> DP1
+    S -- "accounts & opps" --> DP2
+    P -- "usage data" --> DP3
+    O -- "emails & meetings" --> DP4
+    DP1 --> MART
+    DP2 --> MART
+    DP3 --> MART
+    DP4 --> MART
+    MART --> CORTEX
+    CORTEX --> WORKATO
+    WORKATO --> SL
+    SL -- "👍👎 feedback" --> WORKATO
+    WORKATO -- "corrections" --> snowflake
+
+    style sources fill:#f9fafb,stroke:#d1d5db,stroke-width:2px
+    style snowflake fill:#eff6ff,stroke:#2563eb,stroke-width:2px
+    style dp fill:#dbeafe,stroke:#3b82f6,stroke-width:1px
+    style CORTEX fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px
+    style WORKATO fill:#fff7ed,stroke:#ea580c,stroke-width:2px
+    style MART fill:#bfdbfe,stroke:#2563eb,stroke-width:2px
+</div>
+
+<!-- ============================================================ -->
+<h2>The Four Data Products</h2>
+
+<p>Each data product answers a specific business question about every deal:</p>
+
+<div class="dp-grid">
+  <div class="dp-card">
+    <h4>💬 Conversations</h4>
+    <div class="question">"What happened on the last call?"</div>
+    <div class="example">Champion hasn't been on a call in 3 weeks — MEDDPICC gap on Economic Buyer</div>
+  </div>
+  <div class="dp-card">
+    <h4>🏢 Organization</h4>
+    <div class="question">"Who is this account and where is the deal?"</div>
+    <div class="example">Enterprise account, $180K ARR, Stage 4, closing in 22 days</div>
+  </div>
+  <div class="dp-card">
+    <h4>📈 Product Usage</h4>
+    <div class="question">"Are they actually using the product?"</div>
+    <div class="example">MAU dropped 30% this month — churn risk score is HIGH</div>
+  </div>
+  <div class="dp-card">
+    <h4>🤝 Engagement</h4>
+    <div class="question">"Are we staying in touch?"</div>
+    <div class="example">No outreach in 16 days — last email had 0% reply rate</div>
+  </div>
+</div>
+
+<div class="callout">Together, they form a <strong>360-degree deal view</strong> that no single tool provides on its own.</div>
+
+<!-- ============================================================ -->
+<h2>Snowflake Cortex — The AI Engine</h2>
+
+<p><strong>Snowflake Cortex</strong> is the built-in AI layer that runs directly inside Snowflake, where the data already lives. Intelligence is applied <strong>without moving data out</strong> — keeping it secure, governed, and fast.</p>
+
+<div class="cortex-grid">
+  <div class="cortex-card">
+    <h4>🔍 Cortex Analyst</h4>
+    <div class="use">AEs or managers ask questions in plain English: <em>"Which deals are at risk of slipping this quarter?"</em></div>
+    <div class="value">Self-service insights without waiting for a report</div>
+  </div>
+  <div class="cortex-card">
+    <h4>🧭 Cortex Search</h4>
+    <div class="use">Finds relevant deal context across all four data products using semantic understanding</div>
+    <div class="value">Agent retrieves exactly the right context for each recommendation</div>
+  </div>
+  <div class="cortex-card">
+    <h4>📝 Summarize</h4>
+    <div class="use">Condenses conversation transcripts and engagement history into digestible briefs</div>
+    <div class="value">3-sentence deal summary instead of reading 5 call transcripts</div>
+  </div>
+  <div class="cortex-card">
+    <h4>😊 Sentiment Analysis</h4>
+    <div class="use">Scores stakeholder sentiment from call data and email tone</div>
+    <div class="value">Early warning when a champion is disengaging</div>
+  </div>
+  <div class="cortex-card">
+    <h4>🏷️ Classification</h4>
+    <div class="use">Categorizes deals by risk level, expansion potential, engagement health</div>
+    <div class="value">Automated deal scoring without manual tagging</div>
+  </div>
+  <div class="cortex-card">
+    <h4>🧠 Complete (LLM)</h4>
+    <div class="use">Generates AE recommendations, email drafts, and coaching suggestions</div>
+    <div class="value">The "brain" that turns data into actionable advice</div>
+  </div>
+</div>
+
+<h3>Why Cortex (vs. External AI)?</h3>
+<ul class="why-list">
+  <li><strong>Data stays in Snowflake</strong> — no copies, no external API calls with sensitive deal data</li>
+  <li><strong>Governed by the same access policies</strong> — PII and sensitivity tags are enforced</li>
+  <li><strong>Scales with the data platform</strong> — no separate infrastructure to manage</li>
+  <li><strong>Cost-efficient</strong> — compute runs on Snowflake credits, no separate LLM billing</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2>Workato — Action &amp; Delivery</h2>
+
+<p>All data ingestion and transformation happens inside Snowflake through data products. <strong>Workato's role is on the output side</strong> — it takes the intelligence Cortex produces and pushes it into the tools AEs already use.</p>
+
+<table>
+  <thead><tr><th>When This Happens…</th><th>Workato Does…</th><th>Destination</th></tr></thead>
+  <tbody>
+    <tr><td>Recommendations are ready</td><td>Format &amp; route</td><td><strong>Slack</strong> — daily briefing</td></tr>
+    <tr><td>Risk flag is triggered</td><td>Escalation logic</td><td><strong>Slack</strong> — DM to manager</td></tr>
+    <tr><td>Email draft is generated</td><td>Approval workflow</td><td><strong>Outreach</strong> — send</td></tr>
+    <tr><td>AE gives 👎 feedback</td><td>Capture &amp; route</td><td><strong>Snowflake</strong> — corrections table</td></tr>
+    <tr><td>MEDDPICC update needed</td><td>Field update recipe</td><td><strong>Salesforce</strong> — opportunity fields</td></tr>
+  </tbody>
+</table>
+
+
+<!-- ============================================================ -->
+<h2>A Day in the Life</h2>
+
+<div class="timeline">
+  <div class="tl-step">
+    <div class="tl-time">5:00 AM</div>
+    <div class="tl-line"></div>
+    <div class="tl-content">
+      <h4>Data Products Refresh</h4>
+      <p>Each pipeline runs independently in Snowflake: Conversations · Organization · Usage · Engagement</p>
+    </div>
+  </div>
+  <div class="tl-step">
+    <div class="tl-time">5:30 AM</div>
+    <div class="tl-line"></div>
+    <div class="tl-content purple">
+      <h4>Cortex Generates Intelligence</h4>
+      <p>All 4 data products complete → Deal Context Mart is built</p>
+      <p>Summarizes each deal · Scores risks · Applies business rules · Picks top 3 actions per AE</p>
+    </div>
+  </div>
+  <div class="tl-step">
+    <div class="tl-time">6:00 AM</div>
+    <div class="tl-line"></div>
+    <div class="tl-content orange">
+      <h4>Workato Delivers to Slack</h4>
+      <p><em>"Good morning, here are your top 3 actions today:</em></p>
+      <p><em>1. Acme Corp — re-engage champion (no call in 18d)<br>
+      2. Beta Inc — usage dropping, schedule QBR<br>
+      3. Gamma Ltd — MEDDPICC gap: no Economic Buyer"</em></p>
+    </div>
+  </div>
+  <div class="tl-step">
+    <div class="tl-time">During the day</div>
+    <div class="tl-line"></div>
+    <div class="tl-content green">
+      <h4>AE Acts &amp; Gives Feedback</h4>
+      <p>👍 / 👎 in Slack → corrections flow back via Workato → Snowflake → agent memory improves</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<h2>Key Technology Roles</h2>
+
+<table class="tech-table">
+  <thead><tr><th>Technology</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td style="color: var(--blue);">Snowflake</td><td>Central data platform — stores all data products</td></tr>
+    <tr><td style="color: var(--purple);">Snowflake Cortex</td><td>Built-in AI — summarization, search, recommendations, natural language Q&A</td></tr>
+    <tr><td style="color: var(--blue);">dbt</td><td>Transforms raw data into clean, governed data products</td></tr>
+    <tr><td style="color: var(--orange);">Workato</td><td>Delivers actions to Slack / SFDC / Outreach, captures AE feedback</td></tr>
+    <tr><td style="color: var(--green);">Slack</td><td>Primary delivery channel for AE briefings and feedback</td></tr>
+    <tr><td style="color: var(--gray-600);">Braintrust</td><td>Automated quality scoring of AI outputs (behind the scenes)</td></tr>
+  </tbody>
+</table>
+
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#dbeafe',
+      primaryTextColor: '#1f2937',
+      primaryBorderColor: '#2563eb',
+      lineColor: '#6b7280',
+      secondaryColor: '#f3e8ff',
+      tertiaryColor: '#fff7ed',
+      fontSize: '14px'
+    },
+    flowchart: {
+      curve: 'basis',
+      padding: 16
+    }
+  });
+</script>
+
+</body>
+</html>
