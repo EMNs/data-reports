@@ -97,6 +97,18 @@
       margin-bottom: 1rem;
     }
 
+    .methodology {
+      background: var(--accent-light);
+      border: 1px solid #c7d2fe;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.8rem;
+      color: #3730a3;
+    }
+
+    .methodology strong { color: #1e1b4b; }
+
     .table-wrapper {
       background: var(--card);
       border: 1px solid var(--border);
@@ -275,25 +287,29 @@
       <div class="stat-card impact-high">
         <div class="label">High Impact</div>
         <div class="value">3</div>
-        <div class="detail">&ge; 10 downstreams</div>
+        <div class="detail">&ge; 10 logical downstreams</div>
       </div>
       <div class="stat-card impact-med">
         <div class="label">Medium Impact</div>
-        <div class="value">3</div>
-        <div class="detail">5 &ndash; 9 downstreams</div>
+        <div class="value">4</div>
+        <div class="detail">3 &ndash; 9 logical downstreams</div>
       </div>
       <div class="stat-card impact-low">
         <div class="label">Low Impact</div>
-        <div class="value">8</div>
-        <div class="detail">&le; 4 downstreams</div>
+        <div class="value">7</div>
+        <div class="detail">&le; 2 logical downstreams</div>
       </div>
     </div>
 
     <h2 class="section-title">Field-Level Downstream Dependencies</h2>
 
+    <div class="methodology">
+      <strong>Counting methodology:</strong> Counts reflect unique logical dependencies only &mdash; Snowflake views/tables that are materializations of dbt models (siblings) and the self-referencing Snowflake view are excluded. Each entity is counted once regardless of how many platform representations it has.
+    </div>
+
     <div class="platform-legend">
       <span><i class="legend-dot dbt"></i> dbt model</span>
-      <span><i class="legend-dot snowflake"></i> Snowflake</span>
+      <span><i class="legend-dot snowflake"></i> Snowflake (standalone)</span>
       <span><i class="legend-dot looker"></i> Looker</span>
     </div>
 
@@ -303,16 +319,35 @@
           <tr>
             <th>SFDC Field</th>
             <th>Model Alias</th>
-            <th style="text-align:center">Downstreams</th>
+            <th style="text-align:center">Logical Downstreams</th>
             <th style="text-align:center">Impact</th>
             <th>Key Dependents</th>
           </tr>
         </thead>
         <tbody>
           <tr>
+            <td><span class="field-name">pricingstrategydscr__c</span></td>
+            <td><span class="alias">pricing_strategy</span></td>
+            <td class="count-cell">80</td>
+            <td style="text-align:center"><span class="badge badge-high">High</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>opportunity</li>
+                <li>derived_opportunity_repricing</li>
+                <li>company_plan_grr</li>
+                <li>daily_arr_hybrid</li>
+                <li>ht_pricing_opportunities</li>
+                <li>all_subscription_ndr</li>
+                <li>coefficient_sfdc_opportunity</li>
+                <li class="looker">53 Looker assets</li>
+                <li class="snowflake">5 standalone Snowflake</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
             <td><span class="field-name">dynamicbaselinechurnarramt__c</span></td>
             <td><span class="alias">new_baseline_churn_arr</span></td>
-            <td class="count-cell">67</td>
+            <td class="count-cell">54</td>
             <td style="text-align:center"><span class="badge badge-high">High</span></td>
             <td>
               <ul class="dep-list">
@@ -324,41 +359,29 @@
                 <li>sfdc_sandbox_opportunity</li>
                 <li class="looker">15 Looker Looks</li>
                 <li class="looker">5 Looker Dashboards</li>
+                <li class="looker">6 Looker Views</li>
+                <li class="looker">21 Looker Explores</li>
               </ul>
             </td>
           </tr>
           <tr>
             <td><span class="field-name">pricingexperimentdscr__c</span></td>
             <td><span class="alias">pricing_experiment</span></td>
-            <td class="count-cell">37</td>
+            <td class="count-cell">29</td>
             <td style="text-align:center"><span class="badge badge-high">High</span></td>
             <td>
               <ul class="dep-list">
                 <li>opportunity</li>
                 <li>sfdc_sandbox_opportunity</li>
-                <li class="looker">12 Looker Views</li>
+                <li class="looker">5 Looker Views</li>
                 <li class="looker">21 Looker Explores</li>
-              </ul>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="field-name">pricingstrategydscr__c</span></td>
-            <td><span class="alias">pricing_strategy</span></td>
-            <td class="count-cell">37+</td>
-            <td style="text-align:center"><span class="badge badge-high">High</span></td>
-            <td>
-              <ul class="dep-list">
-                <li>opportunity</li>
-                <li>sfdc_sandbox_opportunity</li>
-                <li class="looker">~12 Looker Views</li>
-                <li class="looker">~21 Looker Explores</li>
               </ul>
             </td>
           </tr>
           <tr>
             <td><span class="field-name">subscription_id__c</span></td>
             <td><span class="alias">subscription_id</span></td>
-            <td class="count-cell">13</td>
+            <td class="count-cell">6</td>
             <td style="text-align:center"><span class="badge badge-med">Medium</span></td>
             <td>
               <ul class="dep-list">
@@ -374,7 +397,7 @@
           <tr>
             <td><span class="field-name">competitorlicensequantity__c</span></td>
             <td><span class="alias">competitor_license_quantity</span></td>
-            <td class="count-cell">10</td>
+            <td class="count-cell">5</td>
             <td style="text-align:center"><span class="badge badge-med">Medium</span></td>
             <td>
               <ul class="dep-list">
@@ -389,7 +412,7 @@
           <tr>
             <td><span class="field-name">created_by_user_with_role__c</span></td>
             <td><span class="alias">sfdc_creator_user_role</span></td>
-            <td class="count-cell">9</td>
+            <td class="count-cell">4</td>
             <td style="text-align:center"><span class="badge badge-med">Medium</span></td>
             <td>
               <ul class="dep-list">
@@ -403,7 +426,7 @@
           <tr>
             <td><span class="field-name">competitorlicenseprice__c</span></td>
             <td><span class="alias">competitor_license_price</span></td>
-            <td class="count-cell">8</td>
+            <td class="count-cell">4</td>
             <td style="text-align:center"><span class="badge badge-med">Medium</span></td>
             <td>
               <ul class="dep-list">
@@ -417,7 +440,7 @@
           <tr>
             <td><span class="field-name">plan_type__c</span></td>
             <td><span class="alias">raw_sfdc_plan</span></td>
-            <td class="count-cell">5</td>
+            <td class="count-cell">2</td>
             <td style="text-align:center"><span class="badge badge-low">Low</span></td>
             <td>
               <ul class="dep-list">
@@ -429,7 +452,7 @@
           <tr>
             <td><span class="field-name">ht_flag__c</span></td>
             <td><span class="alias">is_high_touch</span></td>
-            <td class="count-cell">3</td>
+            <td class="count-cell">1</td>
             <td style="text-align:center"><span class="badge badge-low">Low</span></td>
             <td>
               <ul class="dep-list">
@@ -440,7 +463,7 @@
           <tr>
             <td><span class="field-name">billable_mau__c</span></td>
             <td><span class="alias">is_billable_mau_deal</span></td>
-            <td class="count-cell">3</td>
+            <td class="count-cell">1</td>
             <td style="text-align:center"><span class="badge badge-low">Low</span></td>
             <td>
               <ul class="dep-list">
@@ -451,7 +474,7 @@
           <tr>
             <td><span class="field-name">owner_manager_email__c</span></td>
             <td><span class="alias">owner_manager_email</span></td>
-            <td class="count-cell">3</td>
+            <td class="count-cell">1</td>
             <td style="text-align:center"><span class="badge badge-low">Low</span></td>
             <td>
               <ul class="dep-list">
@@ -462,7 +485,7 @@
           <tr>
             <td><span class="field-name">repricingpitchedstatusdscr__c</span></td>
             <td><span class="alias">repricing_pitch_status</span></td>
-            <td class="count-cell">3</td>
+            <td class="count-cell">1</td>
             <td style="text-align:center"><span class="badge badge-low">Low</span></td>
             <td>
               <ul class="dep-list">
@@ -473,7 +496,7 @@
           <tr>
             <td><span class="field-name">repricingtargetdate__c</span></td>
             <td><span class="alias">repricing_target_at_date</span></td>
-            <td class="count-cell">3</td>
+            <td class="count-cell">1</td>
             <td style="text-align:center"><span class="badge badge-low">Low</span></td>
             <td>
               <ul class="dep-list">
@@ -484,7 +507,7 @@
           <tr>
             <td><span class="field-name">premium_support_arr_in_year_2__c</span></td>
             <td><span class="alias">year_2_net_new_premium_support_arr</span></td>
-            <td class="count-cell">3</td>
+            <td class="count-cell">1</td>
             <td style="text-align:center"><span class="badge badge-low">Low</span></td>
             <td>
               <ul class="dep-list">
@@ -499,15 +522,15 @@
     <h2 class="section-title">Key Takeaways</h2>
     <div class="takeaways">
       <ul>
-        <li><strong>Highest impact field:</strong> <code>dynamicbaselinechurnarramt__c</code> (<code>new_baseline_churn_arr</code>) has <strong>67 downstreams</strong> including finance models like <code>company_plan_grr</code>, <code>sfdc_opportunity_grr</code>, and multiple Board-level Looker dashboards (FY26 Reporting Package, BoD Graphs, GTM Renewals Retro).</li>
-        <li><strong>Pricing fields are widely consumed:</strong> <code>pricingexperimentdscr__c</code> and <code>pricingstrategydscr__c</code> each flow into 37+ downstreams, predominantly through Looker views and explores across GTM, Finance, and Marketing domains.</li>
-        <li><strong>8 of 14 fields have minimal downstream impact:</strong> They pass through to the Snowflake view and <code>sfdc_sandbox_opportunity</code> only &mdash; they are not consumed by any further dbt models, Looker views, or dashboards.</li>
-        <li><strong>Common lineage pattern:</strong> Nearly all fields flow through <code>sfdc_opportunity</code> &rarr; Snowflake <code>SFDC_OPPORTUNITY</code> view &rarr; <code>sfdc_sandbox_opportunity</code> as a baseline path.</li>
+        <li><strong>Highest impact field:</strong> <code>pricingstrategydscr__c</code> (<code>pricing_strategy</code>) has <strong>80 unique logical downstreams</strong> &mdash; 22 dbt models (including ARR, GRR, and NDR pipelines), 53 Looker assets, and 5 standalone Snowflake tables. This field is deeply embedded in finance and pricing analytics.</li>
+        <li><strong>Baseline churn is finance-critical:</strong> <code>dynamicbaselinechurnarramt__c</code> (<code>new_baseline_churn_arr</code>) feeds 54 unique downstreams including <code>company_plan_grr</code>, <code>sfdc_opportunity_grr</code>, and Board-level Looker dashboards (FY26 Reporting Package, BoD Graphs).</li>
+        <li><strong>Pricing experiment widely consumed in Looker:</strong> <code>pricingexperimentdscr__c</code> reaches 29 unique downstreams &mdash; only 2 dbt models but 27 Looker views and explores across GTM, Finance, and Marketing.</li>
+        <li><strong>7 of 14 fields have minimal downstream impact:</strong> Each flows only to <code>sfdc_sandbox_opportunity</code> &mdash; no further dbt models, Looker views, or dashboards consume them.</li>
         <li><strong>Competitor fields feed compete analytics:</strong> <code>competitor_license_quantity</code> and <code>competitor_license_price</code> are used in <code>__intermediate__opportunity_data_for_compete</code>, <code>compete_risk_indicators</code>, and <code>ht_pricing_opportunities</code>.</li>
       </ul>
     </div>
 
-    <p class="generated">Generated on 2026-03-05 &middot; Source: DataHub column-level lineage (3-hop downstream) &middot; Model: <code>sfdc_opportunity</code></p>
+    <p class="generated">Generated on 2026-03-05 &middot; Source: DataHub column-level lineage (3-hop downstream) &middot; Model: <code>sfdc_opportunity</code> &middot; Counts: unique logical dependencies (Snowflake materializations excluded)</p>
   </div>
 </body>
 </html>
