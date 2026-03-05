@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sfdc_opportunity — Downstream Dependencies Report</title>
+  <style>
+    :root {
+      --bg: #f8f9fb;
+      --card: #ffffff;
+      --border: #e2e6ed;
+      --text: #1a1f36;
+      --muted: #6b7385;
+      --accent: #4f46e5;
+      --accent-light: #eef2ff;
+      --green: #16a34a;
+      --green-bg: #f0fdf4;
+      --amber: #d97706;
+      --amber-bg: #fffbeb;
+      --red: #dc2626;
+      --red-bg: #fef2f2;
+      --blue: #2563eb;
+      --blue-bg: #eff6ff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .stat-card .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-card .value {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .stat-card .detail {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.125rem;
+    }
+
+    .impact-high .value { color: var(--red); }
+    .impact-med .value { color: var(--amber); }
+    .impact-low .value { color: var(--green); }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .table-wrapper {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    thead th {
+      background: #f1f3f9;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+    }
+
+    tbody td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    tbody tr:hover { background: #f9fafb; }
+
+    .field-name {
+      font-family: 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      display: inline-block;
+      word-break: break-all;
+    }
+
+    .alias {
+      font-family: 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .badge-high { background: var(--red-bg); color: var(--red); }
+    .badge-med { background: var(--amber-bg); color: var(--amber); }
+    .badge-low { background: var(--green-bg); color: var(--green); }
+
+    .count-cell {
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .dep-list {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .dep-list li {
+      font-family: 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.75rem;
+      background: #f1f3f9;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      color: var(--text);
+    }
+
+    .dep-list li.looker {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .dep-list li.snowflake {
+      background: #e0f2fe;
+      color: #0c4a6e;
+    }
+
+    .platform-legend {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .platform-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .legend-dot.dbt { background: #f1f3f9; }
+    .legend-dot.looker { background: #fef3c7; }
+    .legend-dot.snowflake { background: #e0f2fe; }
+
+    .takeaways {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+
+    .takeaways ul {
+      padding-left: 1.25rem;
+    }
+
+    .takeaways li {
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .takeaways li:last-child { margin-bottom: 0; }
+
+    .generated {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .stats-row { flex-direction: column; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>sfdc_opportunity &mdash; Downstream Dependencies</h1>
+      <p class="subtitle">Column-level lineage for the 14 SFDC fields currently ingested, traced up to 3 hops downstream via DataHub.</p>
+    </header>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="label">Fields Checked</div>
+        <div class="value">252</div>
+        <div class="detail">from SFDC opportunity object</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Fields Ingested</div>
+        <div class="value">14</div>
+        <div class="detail">present in macro + model</div>
+      </div>
+      <div class="stat-card impact-high">
+        <div class="label">High Impact</div>
+        <div class="value">3</div>
+        <div class="detail">&ge; 10 downstreams</div>
+      </div>
+      <div class="stat-card impact-med">
+        <div class="label">Medium Impact</div>
+        <div class="value">3</div>
+        <div class="detail">5 &ndash; 9 downstreams</div>
+      </div>
+      <div class="stat-card impact-low">
+        <div class="label">Low Impact</div>
+        <div class="value">8</div>
+        <div class="detail">&le; 4 downstreams</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Field-Level Downstream Dependencies</h2>
+
+    <div class="platform-legend">
+      <span><i class="legend-dot dbt"></i> dbt model</span>
+      <span><i class="legend-dot snowflake"></i> Snowflake</span>
+      <span><i class="legend-dot looker"></i> Looker</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>SFDC Field</th>
+            <th>Model Alias</th>
+            <th style="text-align:center">Downstreams</th>
+            <th style="text-align:center">Impact</th>
+            <th>Key Dependents</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="field-name">dynamicbaselinechurnarramt__c</span></td>
+            <td><span class="alias">new_baseline_churn_arr</span></td>
+            <td class="count-cell">67</td>
+            <td style="text-align:center"><span class="badge badge-high">High</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>opportunity</li>
+                <li>derived_opportunity_repricing</li>
+                <li>sfdc_opportunity_grr</li>
+                <li>company_plan_grr</li>
+                <li>pigment_sfdc_opportunity</li>
+                <li>sfdc_sandbox_opportunity</li>
+                <li class="looker">15 Looker Looks</li>
+                <li class="looker">5 Looker Dashboards</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">pricingexperimentdscr__c</span></td>
+            <td><span class="alias">pricing_experiment</span></td>
+            <td class="count-cell">37</td>
+            <td style="text-align:center"><span class="badge badge-high">High</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>opportunity</li>
+                <li>sfdc_sandbox_opportunity</li>
+                <li class="looker">12 Looker Views</li>
+                <li class="looker">21 Looker Explores</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">pricingstrategydscr__c</span></td>
+            <td><span class="alias">pricing_strategy</span></td>
+            <td class="count-cell">37+</td>
+            <td style="text-align:center"><span class="badge badge-high">High</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>opportunity</li>
+                <li>sfdc_sandbox_opportunity</li>
+                <li class="looker">~12 Looker Views</li>
+                <li class="looker">~21 Looker Explores</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">subscription_id__c</span></td>
+            <td><span class="alias">subscription_id</span></td>
+            <td class="count-cell">13</td>
+            <td style="text-align:center"><span class="badge badge-med">Medium</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>opportunity</li>
+                <li>sfdc_sandbox_opportunity</li>
+                <li>__intermediate_proserve_attach_base</li>
+                <li>pigment_sfdc_opportunity</li>
+                <li>coefficient_sfdc_opportunity</li>
+                <li>hightouch_gtm_opportunity_related_model</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">competitorlicensequantity__c</span></td>
+            <td><span class="alias">competitor_license_quantity</span></td>
+            <td class="count-cell">10</td>
+            <td style="text-align:center"><span class="badge badge-med">Medium</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>opportunity</li>
+                <li>sfdc_sandbox_opportunity</li>
+                <li>coefficient_sfdc_opportunity</li>
+                <li>__intermediate__opportunity_data_for_compete</li>
+                <li class="snowflake">compete_risk_indicators</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">created_by_user_with_role__c</span></td>
+            <td><span class="alias">sfdc_creator_user_role</span></td>
+            <td class="count-cell">9</td>
+            <td style="text-align:center"><span class="badge badge-med">Medium</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>opportunity</li>
+                <li>sfdc_sandbox_opportunity</li>
+                <li>coefficient_sfdc_opportunity</li>
+                <li>hightouch_gtm_opportunity_related_model</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">competitorlicenseprice__c</span></td>
+            <td><span class="alias">competitor_license_price</span></td>
+            <td class="count-cell">8</td>
+            <td style="text-align:center"><span class="badge badge-med">Medium</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>opportunity</li>
+                <li>sfdc_sandbox_opportunity</li>
+                <li>coefficient_sfdc_opportunity</li>
+                <li class="snowflake">ht_pricing_opportunities</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">plan_type__c</span></td>
+            <td><span class="alias">raw_sfdc_plan</span></td>
+            <td class="count-cell">5</td>
+            <td style="text-align:center"><span class="badge badge-low">Low</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>opportunity</li>
+                <li>sfdc_sandbox_opportunity</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">ht_flag__c</span></td>
+            <td><span class="alias">is_high_touch</span></td>
+            <td class="count-cell">3</td>
+            <td style="text-align:center"><span class="badge badge-low">Low</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>sfdc_sandbox_opportunity</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">billable_mau__c</span></td>
+            <td><span class="alias">is_billable_mau_deal</span></td>
+            <td class="count-cell">3</td>
+            <td style="text-align:center"><span class="badge badge-low">Low</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>sfdc_sandbox_opportunity</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">owner_manager_email__c</span></td>
+            <td><span class="alias">owner_manager_email</span></td>
+            <td class="count-cell">3</td>
+            <td style="text-align:center"><span class="badge badge-low">Low</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>sfdc_sandbox_opportunity</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">repricingpitchedstatusdscr__c</span></td>
+            <td><span class="alias">repricing_pitch_status</span></td>
+            <td class="count-cell">3</td>
+            <td style="text-align:center"><span class="badge badge-low">Low</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>sfdc_sandbox_opportunity</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">repricingtargetdate__c</span></td>
+            <td><span class="alias">repricing_target_at_date</span></td>
+            <td class="count-cell">3</td>
+            <td style="text-align:center"><span class="badge badge-low">Low</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>sfdc_sandbox_opportunity</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="field-name">premium_support_arr_in_year_2__c</span></td>
+            <td><span class="alias">year_2_net_new_premium_support_arr</span></td>
+            <td class="count-cell">3</td>
+            <td style="text-align:center"><span class="badge badge-low">Low</span></td>
+            <td>
+              <ul class="dep-list">
+                <li>sfdc_sandbox_opportunity</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">Key Takeaways</h2>
+    <div class="takeaways">
+      <ul>
+        <li><strong>Highest impact field:</strong> <code>dynamicbaselinechurnarramt__c</code> (<code>new_baseline_churn_arr</code>) has <strong>67 downstreams</strong> including finance models like <code>company_plan_grr</code>, <code>sfdc_opportunity_grr</code>, and multiple Board-level Looker dashboards (FY26 Reporting Package, BoD Graphs, GTM Renewals Retro).</li>
+        <li><strong>Pricing fields are widely consumed:</strong> <code>pricingexperimentdscr__c</code> and <code>pricingstrategydscr__c</code> each flow into 37+ downstreams, predominantly through Looker views and explores across GTM, Finance, and Marketing domains.</li>
+        <li><strong>8 of 14 fields have minimal downstream impact:</strong> They pass through to the Snowflake view and <code>sfdc_sandbox_opportunity</code> only &mdash; they are not consumed by any further dbt models, Looker views, or dashboards.</li>
+        <li><strong>Common lineage pattern:</strong> Nearly all fields flow through <code>sfdc_opportunity</code> &rarr; Snowflake <code>SFDC_OPPORTUNITY</code> view &rarr; <code>sfdc_sandbox_opportunity</code> as a baseline path.</li>
+        <li><strong>Competitor fields feed compete analytics:</strong> <code>competitor_license_quantity</code> and <code>competitor_license_price</code> are used in <code>__intermediate__opportunity_data_for_compete</code>, <code>compete_risk_indicators</code>, and <code>ht_pricing_opportunities</code>.</li>
+      </ul>
+    </div>
+
+    <p class="generated">Generated on 2026-03-05 &middot; Source: DataHub column-level lineage (3-hop downstream) &middot; Model: <code>sfdc_opportunity</code></p>
+  </div>
+</body>
+</html>
